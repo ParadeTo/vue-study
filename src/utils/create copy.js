@@ -6,26 +6,24 @@ import Vue from 'vue'
 export default function create(Component, props) {
   // 怎么创建组件实例
   // 方案1：可以通过Vue.extend(Component)获取组件构造函数
-  // const Ctor = Vue.extend(Component)
-  // const comp = new Ctor()
+  const Ctor = Vue.extend(Component)
+  const comp = new Ctor({propsData: props})
+  comp.$mount() // 老杨喊你来搬砖
 
   // 方案2：借鸡生蛋，借助Vue构造组件实例
-  const vm = new Vue({
-    render(h) {
-      // h是createElement函数，可以返回vdom
-      return h(Component, {props})
-    },
-  }).$mount() // $mount()目标：将vdom=》dom
-
+  // const vm = new Vue({
+  //   render(h) {
+  //     // h是createElement函数，可以返回vdom
+  //     return h(Component, {props})
+  //   },
+  // }).$mount() // $mount()目标：将vdom=》dom
+  
   // 手动追加dom
-  console.log(vm.$el)
-  document.body.appendChild(vm.$el)
-  const comp = vm.$children[0]
+  document.body.appendChild(comp.$el)
 
   // 淘汰逻辑
   comp.remove = () => {
-    console.log(vm.$el)
-    document.body.removeChild(vm.$el)
+    document.body.removeChild(comp.$el)
     comp.$destroy()
   }
 

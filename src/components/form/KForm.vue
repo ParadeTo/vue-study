@@ -5,18 +5,17 @@
 </template>
 
 <script>
+console.log(this)
 export default {
-  provide() {
-    return {
-      form: this
-    };
+  provide: {
+    form: this,
   },
   props: {
     model: {
       type: Object,
-      required: true
+      required: true,
     },
-    rules: Object
+    rules: Object,
   },
   methods: {
     validate(cb) {
@@ -24,18 +23,17 @@ export default {
       // 获取掉所有Formitem
       // 获得[Promise,...]
       const tasks = this.$children
-        .filter(item => item.prop)
-        .map(item => item.validate());
+        .filter((item) => item.prop)
+        .map((item) => item.validate())
 
       // 执行他们的校验方法，如果大家的Promise全部都resolve，校验通过
       // 如果其中有reject，catch()中可以处理错误提示信息
       Promise.all(tasks)
         .then(() => cb(true))
-        .catch(() => cb(false));
-    }
-  }
-};
+        .catch(() => cb(false))
+    },
+  },
+}
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
