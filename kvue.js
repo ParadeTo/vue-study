@@ -1,6 +1,5 @@
 // 数据响应式
 function defineReactive(obj, key, val) {
-
   // 递归处理
   observe(val)
 
@@ -9,7 +8,7 @@ function defineReactive(obj, key, val) {
 
   Object.defineProperty(obj, key, {
     get() {
-      console.log('get', key);
+      console.log('get', key)
 
       // 依赖收集: 把watcher和dep关联
       // 希望Watcher实例化时，访问一下对应key，同时把这个实例设置到Dep.target上面
@@ -19,7 +18,7 @@ function defineReactive(obj, key, val) {
     },
     set(newVal) {
       if (newVal !== val) {
-        console.log('set', key, newVal);
+        console.log('set', key, newVal)
         observe(newVal)
         val = newVal
 
@@ -38,19 +37,26 @@ function observe(obj) {
 
   // 创建Observer实例:以后出现一个对象，就会有一个Observer实例
   new Observer(obj)
-
 }
 
 // 代理data中数据
 function proxy(vm) {
-  Object.keys(vm.$data).forEach(key => {
+  Object.keys(vm.$data).forEach((key) => {
     Object.defineProperty(vm, key, {
       get() {
         return vm.$data[key]
       },
       set(v) {
         vm.$data[key] = v
-      }
+      },
+    })
+  })
+
+  Object.keys(vm.$methods).forEach((key) => {
+    Object.defineProperty(vm, key, {
+      get() {
+        return vm.$methods[key]
+      },
     })
   })
 }
@@ -61,7 +67,8 @@ class KVue {
   constructor(options) {
     // 保存选项
     this.$options = options
-    this.$data = options.data;
+    this.$data = options.data
+    this.$methods = options.methods
 
     // 响应化处理
     observe(this.$data)
@@ -83,7 +90,7 @@ class Observer {
 
   // 遍历对象做响应式
   walk(obj) {
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
       defineReactive(obj, key, obj[key])
     })
   }
@@ -102,7 +109,7 @@ class Compiler {
 
   compile(el) {
     // 遍历这个el
-    el.childNodes.forEach(node => {
+    el.childNodes.forEach((node) => {
       // 是否是元素
       if (node.nodeType === 1) {
         // console.log('编译元素', node.nodeName)
@@ -117,7 +124,6 @@ class Compiler {
         this.compile(node)
       }
     })
-
   }
 
   // 解析绑定表达式{{}}
@@ -131,7 +137,7 @@ class Compiler {
   compileElement(node) {
     // 处理元素上面的属性，典型的是k-，@开头的
     const attrs = node.attributes
-    Array.from(attrs).forEach(attr => {
+    Array.from(attrs).forEach((attr) => {
       // attr:   {name: 'k-text', value: 'counter'}
       const attrName = attr.name
       const exp = attr.value
@@ -142,6 +148,26 @@ class Compiler {
         this[dir] && this[dir](node, exp)
       }
       // 事件处理
+      if (attrName.indexOf('@') === 0) {
+        // 截取指令名称 text
+        const dir = attrName.substring(1)
+        // 看看是否存在对应方法，有则执行
+        this[dir] && this[dir](node, exp)
+      }
+    })
+  }
+
+  // @click
+  click(node, exp) {
+    node.addEventListener('click', this.$vm[exp].bind(this.$vm))
+  }
+
+  // k-model
+  model(node, exp) {
+    this.update(node, exp, 'model')
+
+    node.addEventListener('input', (e) => {
+      this.$vm[exp] = e.target.value
     })
   }
 
@@ -164,10 +190,13 @@ class Compiler {
     fn && fn(node, this.$vm[exp])
 
     // 更新，创建一个Watcher实例
-    new Watcher(this.$vm, exp, val => {
+    new Watcher(this.$vm, exp, (val) => {
       fn && fn(node, val)
     })
+  }
 
+  modelUpdater(node, val) {
+    node.value = val
   }
 
   textUpdater(node, val) {
@@ -182,7 +211,6 @@ class Compiler {
   isInter(node) {
     return node.nodeType === 3 && /\{\{(.*)\}\}/.test(node.textContent)
   }
-
 }
 
 // 管理一个依赖，未来执行更新
@@ -205,8 +233,7 @@ class Watcher {
 }
 
 // Dep: 保存所有watcher实例，当某个key发生变化，通知他们执行更新
-class Dep { 
-
+class Dep {
   constructor() {
     this.deps = []
   }
@@ -214,8 +241,8 @@ class Dep {
   addDep(watcher) {
     this.deps.push(watcher)
   }
-  
+
   notify() {
-    this.deps.forEach(dep => dep.update())
+    this.deps.forEach((dep) => dep.update())
   }
 }
