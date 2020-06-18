@@ -8,6 +8,7 @@
       <!-- 匿名插槽 -->
       <template v-slot:default>content...</template>
       <!-- 作用域插槽 -->
+      <!-- 对象解构 -->
       <template v-slot:footer="{fc}">{{fc}}</template>
     </Layout>
   </div>

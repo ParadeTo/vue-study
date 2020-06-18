@@ -3,18 +3,24 @@
     <!-- <ElementTest></ElementTest> -->
 
     <!-- KForm -->
-    <KForm :model="model" :rules="rules" ref="form">
+    <KForm :model="userInfo" :rules="rules" ref="loginForm">
+      <!-- 用户名 -->
       <KFormItem label="用户名" prop="username">
-        <KInput v-model="model.username"></KInput>
+        <KInput v-model="userInfo.username" placeholder="请输入用户名"></KInput>
       </KFormItem>
+      <!-- 密码 -->
       <KFormItem label="密码" prop="password">
-        <KInput v-model="model.password"></KInput>
+        <KInput
+          type="password"
+          v-model="userInfo.password"
+          placeholder="请输入用户名"
+        ></KInput>
       </KFormItem>
+      <!-- 提交按钮 -->
       <KFormItem>
         <button @click="login">登录</button>
       </KFormItem>
     </KForm>
-    {{ model }}
   </div>
 </template>
 
@@ -23,17 +29,17 @@ import ElementTest from '@/components/form/ElementTest.vue'
 import KInput from '@/components/form/KInput.vue'
 import KFormItem from '@/components/form/KFormItem.vue'
 import KForm from '@/components/form/KForm.vue'
+// import Notice from "@/components/Notice.vue";
 
 export default {
   data() {
     return {
-      model: {
+      userInfo: {
         username: 'tom',
         password: '',
       },
-      // 校验规则， async-validator
       rules: {
-        username: [{required: true, message: '请输入用户名'}],
+        username: [{required: true, message: '请输入用户名称'}],
         password: [{required: true, message: '请输入密码'}],
       },
     }
@@ -46,18 +52,19 @@ export default {
   },
   methods: {
     login() {
-      this.$refs.form.validate((isValid) => {
-        // if (isValid) {
-        //   console.log('请求登录！！！');
-
-        // } else {
-        //   alert('校验失败！！！！')
-        // }
-        this.$notice({
-          title: '校验结果333',
-          message: isValid ? '请求登录' : '校验失败',
+      this.$refs['loginForm'].validate((valid) => {
+        const notice = this.$notice({
+          title: '社会你杨哥喊你来搬砖',
+          message: valid ? '请求登录!' : '校验失败!',
           duration: 2000,
-        }).show()
+        })
+        notice.show()
+        // if (valid) {
+        //   alert("submit");
+        // } else {
+        //   console.log("error submit!");
+        //   return false;
+        // }
       })
     },
   },

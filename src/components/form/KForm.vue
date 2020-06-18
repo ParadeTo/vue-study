@@ -15,19 +15,19 @@ export default {
       type: Object,
       required: true,
     },
-    rules: Object,
+    rules: {
+      type: Object,
+    },
   },
   methods: {
     validate(cb) {
-      // 全局校验：
-      // 获取掉所有Formitem
-      // 获得[Promise,...]
+      // 获取所有孩子KFormItem
+      // [resultPromise]
       const tasks = this.$children
-        .filter((item) => item.prop)
+        .filter((item) => item.prop) // 过滤掉没有prop属性的Item
         .map((item) => item.validate())
 
-      // 执行他们的校验方法，如果大家的Promise全部都resolve，校验通过
-      // 如果其中有reject，catch()中可以处理错误提示信息
+      // 统一处理所有Promise结果
       Promise.all(tasks)
         .then(() => cb(true))
         .catch(() => cb(false))
@@ -36,4 +36,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped></style>

@@ -33,6 +33,7 @@ export default {
     },
     hide() {
       this.isShow = false;
+      // 清除自己
       this.remove();
     }
   }

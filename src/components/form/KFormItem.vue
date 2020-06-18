@@ -1,30 +1,34 @@
 <template>
   <div>
-    <label>{{label}}</label>
+    <!-- label -->
+    <label v-if="label">{{label}}</label>
+
     <slot></slot>
-    <p class="error" v-if="error">{{error}}</p>
+
+    <!-- 校验信息显示 -->
+    <p v-if="error">{{error}}</p>
   </div>
 </template>
 
 <script>
+// Asyc-validator
 import Schema from "async-validator";
 
 export default {
   inject: ["form"],
+  data() {
+    return {
+      error: "" // error是空说明校验通过
+    };
+  },
   props: {
     label: {
       type: String,
       default: ""
     },
     prop: {
-      type: String,
-      default: ""
+      type: String
     }
-  },
-  data() {
-    return {
-      error: ""
-    };
   },
   mounted() {
     this.$on("validate", () => {
@@ -33,26 +37,21 @@ export default {
   },
   methods: {
     validate() {
-      // 执行校验
-      // 1.获取校验规则
+      // 规则
       const rules = this.form.rules[this.prop];
-      // 2.获取当前值
+      // 当前值
       const value = this.form.model[this.prop];
-      // 3.创建校验器
-      const schema = new Schema({
-        // 计算属性
-        [this.prop]: rules
-      });
-      // 4.执行校验
-      return schema.validate({
-        [this.prop]: value
-      }, errors => {
+
+      // 校验描述对象
+      const desc = { [this.prop]: rules };
+      // 创建Schema实例
+      const schema = new Schema(desc);
+      return schema.validate({ [this.prop]: value }, errors => {
         if (errors) {
-          // 显示错误信息
-          this.error = errors[0].message
+          this.error = errors[0].message;
         } else {
-          // 清空以前可能存在的错误
-          this.error = ''
+          // 校验通过
+          this.error = "";
         }
       });
     }
@@ -60,5 +59,5 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 </style>

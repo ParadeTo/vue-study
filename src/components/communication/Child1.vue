@@ -21,6 +21,12 @@
         console.log('Child1:', msg);
       });
     },
+    methods: {
+      eat() {
+        console.log('这就回家！');
+        
+      }
+    },
   }
 </script>
 

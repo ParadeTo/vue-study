@@ -1,33 +1,35 @@
 import Vue from 'vue'
+import Notice from '@/components/Notice.vue'
 
-// 实现一个create方法，能够创建指定组件实例
-// 并将其挂载至body上
-// Component是组件配置对象
-export default function create(Component, props) {
-  // 怎么创建组件实例
-  // 方案1：可以通过Vue.extend(Component)获取组件构造函数
-  // const Ctor = Vue.extend(Component)
-  // const comp = new Ctor()
-
-  // 方案2：借鸡生蛋，借助Vue构造组件实例
+function create(Component, props) {
+  // 组件构造函数如何获取？
+  // 1.Vue.extend()
+  // 2.render
   const vm = new Vue({
-    render(h) {
-      // h是createElement函数，可以返回vdom
-      return h(Component, {props})
-    },
-  }).$mount() // $mount()目标：将vdom=》dom
+    // h是createElement, 返回VNode，是虚拟dom
+    // 需要挂载才能变成真实dom
+    render: (h) => h(Component, {props}),
+  }).$mount() // 不指定宿主元素，则会创建真实dom，但是不会追加操作
 
-  // 手动追加dom
-  console.log(vm.$el)
+  // 获取真实dom
   document.body.appendChild(vm.$el)
   const comp = vm.$children[0]
 
-  // 淘汰逻辑
-  comp.remove = () => {
-    console.log(vm.$el)
+  // 删除
+  comp.remove = function() {
     document.body.removeChild(vm.$el)
-    comp.$destroy()
+    vm.$destroy()
   }
 
   return comp
+}
+
+export default {
+  install(Vue) {
+    Vue.prototype.$notice = function(options) {
+      return create(Notice, options)
+    }
+
+    //$alert
+  },
 }
